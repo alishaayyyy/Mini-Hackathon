@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search Tasks</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f2f4f8;
+    }
+    .search-container {
+      max-width: 600px;
+      margin: 50px auto;
+    }
+    .task-card {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container search-container">
+  <h3 class="text-center mb-4">Search Tasks</h3>
+
+  <div class="input-group mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="Enter task title...">
+    <button class="btn btn-primary" id="searchBtn">Search</button>
+  </div>
+
+  <div id="search-results" class="text-center"></div>
+
+  <!-- Back Button -->
+  <div class="d-grid gap-2 mt-4">
+    <button class="btn btn-secondary" id="backBtn">Back to Dashboard</button>
+  </div>
+</div>
+
+<script type="module">
+import { db, collection, getDocs, auth, onAuthStateChanged } from "./config.js";
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('search-results');
+    const backBtn = document.getElementById('backBtn');
+
+    // Back button click
+    backBtn.addEventListener('click', () => {
+      window.location.href = "./dashboard.html";
+    });
+
+    searchBtn.addEventListener('click', async () => {
+      const queryText = searchInput.value.trim().toLowerCase();
+      searchResults.innerHTML = ""; // clear previous search
+
+      if (!queryText) {
+        alert("Please enter a task title to search.");
+        return;
+      }
+
+      // Show loading text
+      searchResults.innerHTML = "<p class='text-primary'>Loading...</p>";
+
+      try {
+        const querySnapshot = await getDocs(collection(db, "tasks"));
+        let found = false;
+        searchResults.innerHTML = ""; // clear loading after fetch
+
+        querySnapshot.forEach((doc) => {
+          const task = doc.data();
+          
+          if (task.createdBy === user.uid && task.title.toLowerCase().includes(queryText)) {
+            found = true;
+            const taskCard = `
+              <div class="task-card text-start">
+                <h5>${task.title}</h5>
+                <p>${task.description}</p>
+                <span class="badge ${
+                  task.status === 'Pending' ? 'bg-warning text-dark' :
+                  task.status === 'In Progress' ? 'bg-primary' :
+                  'bg-success'
+                }">
+                  ${task.status}
+                </span>
+              </div>
+            `;
+            searchResults.innerHTML += taskCard;
+          }
+        });
+
+        if (!found) {
+          searchResults.innerHTML = "<p class='text-muted'>No matching tasks found.</p>";
+        }
+      } catch (error) {
+        console.error("Error searching tasks:", error);
+        searchResults.innerHTML = "<p class='text-danger'>Failed to search tasks.</p>";
+      }
+    });
+
+  } else {
+    alert("Please login to search your tasks.");
+    window.location.href = "./index.html"; // apna login page ka naam
+  }
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

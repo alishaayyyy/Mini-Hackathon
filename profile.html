@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>User Profile - Tasks</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .profile-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .profile-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .task-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .card {
+      width: 20rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="profile" class="container mt-5"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import { auth, db, collection, query, where, getDocs, doc, updateDoc, deleteDoc } from "./config.js";
+
+    // Firebase auth state check
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log("User signed in:", user);
+        displayUserProfile(user);
+        fetchUserTasks(user.uid);
+      } else {
+        console.log("No user signed in");
+        window.location.href = "./index.html";
+      }
+    });
+
+    // Show profile info
+    function displayUserProfile(user) {
+      const profileContainer = document.getElementById("profile");
+      profileContainer.innerHTML = `
+        <div class="profile-header">
+          <img src="${user.photoURL || 'default-profile.jpg'}" alt="Profile Picture" class="profile-img">
+          <h2>${user.displayName || 'User Name'}</h2>
+          <p>${user.email}</p>
+          <!-- Back to Dashboard Button -->
+          <button class="btn btn-secondary mt-3" onclick="window.location.href='./dashboard.html'">Back to Dashboard</button>
+        </div>
+        <div class="task-cards" id="task-cards">
+          <!-- Tasks will show here -->
+        </div>
+      `;
+    }
+
+    // Fetch user's tasks
+    async function fetchUserTasks(userId) {
+      const tasksRef = collection(db, "tasks");
+      const q = query(tasksRef, where("createdBy", "==", userId));
+      const querySnapshot = await getDocs(q);
+
+      const taskContainer = document.getElementById("task-cards");
+
+      if (querySnapshot.empty) {
+        taskContainer.innerHTML = "<p>No tasks added by you yet.</p>";
+        return;
+      }
+
+      querySnapshot.forEach((docItem) => {
+        const task = docItem.data();
+        console.log(task);
+        const taskCard = `
+          <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body">
+              <h5 class="card-title text-primary fw-bold">${task.title}</h5>
+              <p class="card-text"><strong>Description:</strong> ${task.description}</p>
+              <p class="card-text"><strong>Status:</strong> ${task.status}</p>
+              <div class="d-flex justify-content-between mt-3">
+                <button class="btn btn-sm btn-outline-primary" onclick="editTask('${docItem.id}')">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteTask('${docItem.id}')">Delete</button>
+              </div>
+            </div>
+          </div>
+        `;
+        taskContainer.innerHTML += taskCard;
+      });
+    }
+
+    // ✏️ Edit Task
+    window.editTask = async function(taskId) {
+      const newDescription = prompt("Enter new description:");
+      const newStatus = prompt("Enter new status (Pending, In Progress, Completed):");
+
+      if (!newDescription || !newStatus) {
+        alert("Both fields are required!");
+        return;
+      }
+
+      try {
+        const taskRef = doc(db, "tasks", taskId);
+        await updateDoc(taskRef, {
+          description: newDescription,
+          status: newStatus
+        });
+        alert("Task updated successfully!");
+        location.reload();  // Page reload to refresh updated task
+      } catch (error) {
+        console.error("Error updating task:", error);
+        alert("Failed to update task.");
+      }
+    };
+
+    // 🗑 Delete Task
+    window.deleteTask = async function(taskId) {
+      const confirmDelete = confirm("Are you sure you want to delete this task?");
+      if (confirmDelete) {
+        try {
+          const taskRef = doc(db, "tasks", taskId);
+          await deleteDoc(taskRef);
+          alert("Task deleted successfully!");
+          location.reload();
+        } catch (error) {
+          console.error("Error deleting task:", error);
+          alert("Failed to delete task.");
+        }
+      }
+    };
+  </script>
+</body>
+</html>

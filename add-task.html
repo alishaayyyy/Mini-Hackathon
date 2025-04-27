@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add Task</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f2f4f8;
+    }
+
+    .form-container {
+      max-width: 500px;
+      margin: 60px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    h3 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 25px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="form-container">
+      <h3>Add New Task</h3>
+      <form id="form">
+        <div class="mb-3">
+          <label for="title" class="form-label">Task Title</label>
+          <input type="text" class="form-control" id="title" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="status" class="form-label">Status</label>
+          <select class="form-select" id="status" required>
+            <option value="" disabled selected>Select status</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Submit Task</button>
+        <button id="back" type="submit" class="btn btn-primary w-100" style="margin-top: 1em;">Back to dashboard</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db, collection, addDoc, auth, onAuthStateChanged } from "./config.js";
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        console.log("Logged in as:", user.email);
+
+        const form = document.getElementById("form");
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const title = document.getElementById("title").value.trim();
+          const description = document.getElementById("description").value.trim();
+          const status = document.getElementById("status").value;
+
+          if (!title || !description || !status) {
+            alert("All fields are required.");
+            return;
+          }
+
+          const taskData = {
+            title,
+            description,
+            status,
+            createdBy: currentUser.uid,
+            createdAt: new Date()
+          };
+
+          try {
+            await addDoc(collection(db, "tasks"), taskData);
+            alert("Task added successfully!");
+            form.reset();
+          } catch (error) {
+            console.error("Error adding task:", error);
+            alert("Failed to add task.");
+          }
+        });
+      } else {
+        alert("Please login to add tasks.");
+      }
+    });
+
+const back = document.getElementById('back');
+if (back) {
+  back.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = "./dashboard.html";
+  });
+}
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

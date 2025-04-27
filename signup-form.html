@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Task Tracker - Login</title>
+  <title>Task Tracker - Signup</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
@@ -164,22 +164,22 @@
 </head>
 <body>
 
-  <!-- Login Form -->
+  <!-- *********** Signup form **************************** -->
   <div class="auth-container">
-    <h2 class="auth-title">Login to Task Tracker</h2>
+    <h2 class="auth-title">Signup to Task Tracker</h2>
     <form id="form">
       <div class="input-group">
         <label>Email</label>
-        <input id="email" type="email" placeholder="you@example.com" required>
+        <input type="email" id="Email" placeholder="you@example.com" required>
       </div>
       <div class="input-group">
         <label>Password</label>
-        <input type="password" id="password"  placeholder="••••••••" required>
+        <input type="password" id="password" placeholder="••••••••" required>
       </div>
 
-      <a href="#" id="forget" class="forgot">Forgot password?</a>
+      <a href="#" class="forgot" id="forget">Forgot password?</a>
 
-      <button class="btn" type="submit">Login</button>
+      <button class="btn" type="submit">Signup</button>
 
       <div class="divider"><span>or</span></div>
 
@@ -188,35 +188,34 @@
       </button>
     </form>
 
-    <p class="toggle-text">Don't have an account? <a href="./signup-form.html">Sign up</a></p>
+    <p class="toggle-text">Already have an account? <a href="./index.html">Login</a></p>
   </div>
 
-  <script type="module" >
+  <!-- ******** Firebase Script Section ******** -->
+  
+  <script type="module">
+    
+import { createUserWithEmailAndPassword,auth ,GoogleAuthProvider,signInWithPopup} from "./config.js";
 
-import { auth, signInWithEmailAndPassword,signOut,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup } from "./config.js";
+//****************** form creating user *********************************************///////////////////////
+let form = document.getElementById('form');
 
- // ******************** login form data *********************//////////////////////////////////
- let form = document.getElementById('form');
-
-form.addEventListener('submit', (e)=>{
+form.addEventListener('submit', (e) => {
   e.preventDefault();
-
-  let email = document.getElementById('email').value;
+  
+  let email = document.getElementById('Email').value;
   let password = document.getElementById('password').value;
-  console.log(email, password);
 
-  signInWithEmailAndPassword(auth, email, password)
+  createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
-      console.log("succesfull");
-      console.log(user);
-      window.location.href ='./dashboard.html';
+      console.log("Signup successful", user);
+      alert("Account created! Please login.");
+      window.location.href = "./index.html"; // Redirect to login page
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log("Login error:", errorMessage);
-      alert("Login failed: " + errorMessage);
+      console.log("Signup error:", error.message);
+      alert("Signup failed: " + error.message);
     });
 });
 
@@ -235,16 +234,16 @@ let google = document.getElementById('google');
 
 google.addEventListener('click', (e) => {
   e.preventDefault();
-
+  
   signInWithPopup(auth, provider)
     .then((result) => {
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
       const user = result.user;
-
+      
       console.log("Google Sign-in successful", user);
       alert("Successfully signed in with Google!");
-      window.location.href = "./dashboard.html";
+      window.location.href = "./dashboard.html"; // Redirect to home/dashboard
     })
     .catch((error) => {
       console.log("Google Sign-in error:", error.message);
@@ -252,29 +251,15 @@ google.addEventListener('click', (e) => {
     });
 });
 
+// **************** Forget poassword (location to login-form) **************************
+let forgotLink = document.getElementById("forget");
 
-// ******************** forget *********************//////////////////////////////////
-let forget = document.getElementById('forget');
-forget.addEventListener('click',(e)=>{
+forgotLink.addEventListener("click", function (e) {
   e.preventDefault();
-  let email = document.getElementById('email').value; 
+  window.location.href = "./index.html";
+});
 
-  if (!email) {
-    alert("Please enter your email address first.");
-    return;
-  }
-
-  sendPasswordResetEmail(auth, email)
-    .then(() => {
-      alert("reset password link is sent to your email");
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      alert("Error: " + errorMessage);
-    });
-})
-
+    
   </script>
 </body>
 </html>

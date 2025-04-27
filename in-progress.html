@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>View Tasks</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f2f4f8;
+    }
+    .task-card {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container mt-5">
+  <h3 class="text-center text-primary mb-4">Your Pending Tasks </h3>
+  <div id="task-list"></div>
+  <button id="back" type="submit" class="btn btn-primary w-100" style="margin-top: 1em;">Back to dashboard</button>
+</div>
+
+<script type="module">
+import { db, collection, query, where, getDocs, auth, onAuthStateChanged } from "./config.js";
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const taskList = document.getElementById('task-list');
+    taskList.innerHTML = "Loading................."
+    const q = query(
+      collection(db, "tasks"),
+      where("createdBy", "==", user.uid),
+      where("status", "in", ["Pending", "In Progress"])
+    );
+
+    try {
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        taskList.innerHTML = "<p class='text-center'>No tasks found || Add a task !</p>";
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        const task = doc.data();
+        const taskCard = `
+          <div class="task-card">
+            <h5>${task.title}</h5>
+            <p>${task.description}</p>
+            <span class="badge bg-warning text-dark">${task.status}</span>
+          </div>
+        `;
+        taskList.innerHTML = '';
+        taskList.innerHTML += taskCard;
+      });
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      taskList.innerHTML = "<p class='text-center text-danger'>Failed to load tasks.</p>";
+    }
+  } else {
+    alert("Please login to view your tasks.");
+    window.location.href = "./index.html"; // apni login page ka naam
+  }
+});
+
+const back = document.getElementById('back');
+if (back) {
+  back.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = "./dashboard.html";
+  });
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

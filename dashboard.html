@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Responsive Task Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f7fc;
+      color: #333;
+    }
+
+    /* Navbar Styling */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #ffffff;
+      padding: 15px 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      margin: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .navbar:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      transform: translateY(-5px);
+    }
+
+    .navbar-left, .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-icon, .date-icon, .box-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.3s ease;
+    }
+
+    .logo-icon:hover, .box:hover {
+      transform: scale(1.1);
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: bold;
+      color: #4a90e2;
+    }
+
+    .date {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .date span {
+      font-size: 16px;
+      color: #888;
+    }
+
+    .box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .box1 { background-color: #ecaa59; }
+    .box2 { background-color: #8085dd; }
+    .box3 { background-color: #7652a9; }
+
+    .box:hover {
+      background-color: #333;
+    }
+/* *************** Main section ****************** */
+
+.col {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 10px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      min-width: 250px; /* Ensure each column has a minimum width */
+    }
+
+    /* Custom width for each column */
+    .col-left {
+      width: 25%; /* 25% width for the first column */
+    }
+
+    .col-middle {
+      width: 50% !important; /* 40% width for the middle column */
+    }
+
+    .col-right {
+      width: 25%; /* 25% width for the right column */
+    }
+
+    /* Style for navigation links */
+    .nav-links a {
+      text-decoration: none;
+      color: #007bff;
+      font-weight: 600;
+      padding: 12px 20px;
+      display: block;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+      background-color: #f4f7fc;
+    }
+
+    .nav-links a:hover {
+      background-color: #007bff;
+      color: white;
+      transform: translateX(5px);
+    }
+
+    /* Styling for middle column (content area) */
+    .col-middle h3 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .col-middle p {
+      font-size: 16px;
+      color: #555;
+    }
+
+    /* Right column - Upcoming Tasks */
+    .upcoming-tasks ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .upcoming-tasks li {
+      background-color: #e9ecef;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .upcoming-tasks li:hover {
+      background-color: #007bff;
+      color: white;
+    }
+
+    /* Responsive behavior */
+    @media (max-width: 768px) {
+      .col-left, .col-middle, .col-right {
+        width: 100%; /* Full width on smaller screens */
+        margin-bottom: 20px;
+      }
+    }
+
+    /* Calender */
+
+    .calendar-container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    .calendar-header {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .day-name, .date-cell {
+      padding: 5px;
+      border-radius: 8px;
+    }
+
+    .day-name {
+      background-color: #e9ecef;
+      font-weight: bold;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .date-cell {
+      background-color: #f0f3f8;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .date-cell:hover {
+      background-color: #007bff;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .empty {
+      background-color: transparent;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+ <!-- ************ Navbar *********************** -->
+  <div class="navbar">
+    <div class="navbar-left">
+      <div class="logo-icon" style="background-color: #f39c12;">
+        <i class="fa-solid fa-envelope" style="color: white;"></i>
+      </div>
+      <div class="logo-text">Task Tracker</div>
+      <div class="date">
+        <span>26-Apr-2025</span>
+        <div class="date-icon" style="background-color: #f39c12;"></div>
+      </div>
+    </div>
+
+    <div class="navbar-right">
+      <div class="box box1">
+        <div class="box-icon">
+          <i class="fa-solid fa-bell" style="color: white;"></i>
+        </div>
+      </div>
+      <div class="box box2">
+        <div class="box-icon">
+          <i class="fa-solid fa-calendar" style="color: white;"></i>
+        </div>
+      </div>
+      <div class="box box3">
+        <div class="box-icon">
+          <i class="fa-solid fa-user" style="color: white;"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- ******** Main container ******************** -->
+ <!-- Container for responsive layout -->
+ <div class="container text-center">
+  <div class="row align-items-start">
+    <!-- Left Column: Navigation links -->
+    <div class="col col-left">
+      <div class="nav-links">
+        <a href="./dashboard.html">Dashboard</a>
+        <a href="./profile.html">Profile</a>
+        <a href="./add-task.html">Add Task</a>
+        <a href="./search.html">Search Task</a>
+        <a href="./completed.html">Completed Tasks</a>
+        <a href="./in-progress.html">Pending Tasks</a>
+        <button id="logout" class="btn btn-danger">Logout</button>
+      </div>
+    </div>
+
+<!-- Middle Column: Content Area -->
+<div class="col col-middle">
+  <h3>All Tasks</h3>
+  <div id="all-tasks"></div> <!-- Tasks yahan appear honge -->
+</div>
+
+
+    <!-- Right Column: Additional Information -->
+    <div class="col col-right">
+
+      
+  
+    <div class="calendar-header" id="calendarHeader">Loading...</div>
+    <div class="calendar" id="calendar"></div>
+  
+
+      </div>
+
+
+
+
+    </div>
+  </div>
+<!-- </div> -->
+
+
+
+
+
+
+  <script type="module">
+import { db, collection, getDocs, auth, onAuthStateChanged,signOut } from "./config.js";
+
+
+ const calendar = document.getElementById('calendar');
+    const header = document.getElementById('calendarHeader');
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const today = new Date();
+    const month = today.getMonth();      // 0-11
+    const year = today.getFullYear();
+
+    function renderCalendar(month, year) {
+      calendar.innerHTML = '';
+      header.innerText = `${monthNames[month]} ${year}`;
+
+      // Add day names
+      for (let day of dayNames) {
+        const div = document.createElement('div');
+        div.className = 'day-name';
+        div.innerText = day;
+        calendar.appendChild(div);
+      }
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Empty cells before first day
+      for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'date-cell empty';
+        calendar.appendChild(empty);
+      }
+
+      // Fill the days
+      for (let i = 1; i <= daysInMonth; i++) {
+        const date = document.createElement('div');
+        date.className = 'date-cell';
+        date.innerText = i;
+        calendar.appendChild(date);
+      }
+    }
+
+    renderCalendar(month, year);
+
+
+    // ************* Showing all data on dashboard ************************
+
+    
+    
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const allTasksContainer = document.getElementById('all-tasks');
+    try {
+      const querySnapshot = await getDocs(collection(db, "tasks"));
+
+      if (querySnapshot.empty) {
+        allTasksContainer.innerHTML = "<p class='text-center'>No tasks found!</p>";
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        const task = doc.data();
+
+        // Sirf apne user ke tasks dikhayenge
+        if (task.createdBy === user.uid) {
+          const taskCard = `
+            <div class="card mb-3 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">${task.title}</h5>
+                <p class="card-text">${task.description}</p>
+                <span class="badge ${
+                  task.status === 'Pending' ? 'bg-warning text-dark' :
+                  task.status === 'In Progress' ? 'bg-primary' :
+                  'bg-success'
+                }">
+                  ${task.status}
+                </span>
+              </div>
+            </div>
+          `;
+          allTasksContainer.innerHTML += taskCard;
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      allTasksContainer.innerHTML = "<p class='text-danger text-center'>Failed to load tasks.</p>";
+    }
+  } else {
+    alert("Please login to view your tasks.");
+    window.location.href = "./index.html"; // apna login page ka naam
+  }
+});
+
+
+// ******************** llogout *********************//////////////////////////////////
+ // Logout functionality
+ let logout = document.getElementById('logout');
+    logout.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      signOut(auth).then(() => {
+        alert("Successfully logged out.");
+        window.location.href = "./index.html";  // Redirect to login page after logout
+      }).catch((error) => {
+        console.log("Error logging out:", error);
+      });
+    });
+</script>
